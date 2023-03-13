@@ -1,12 +1,13 @@
 import os
 import warnings
-warnings.filterwarnings('ignore')
+
+warnings.filterwarnings("ignore")
 
 import shutil
 import argparse
 
-from core.utils import generate_onnx_graph
-from core.benchmark import verify_export
+from marian_onnx.utils import generate_onnx_graph
+from marian_onnx.benchmark import verify_export
 
 
 PARAMS = None
@@ -16,9 +17,15 @@ FILES = []
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("input", type=str, help="Input model directory or name.")
-    parser.add_argument("-o", "--output", type=str, default="./outs", help="Output directory.")
-    parser.add_argument("--no-quantize", action="store_false", default=True,
-                        help="Disable model quantization.")
+    parser.add_argument(
+        "-o", "--output", type=str, default="./outs", help="Output directory."
+    )
+    parser.add_argument(
+        "--no-quantize",
+        action="store_false",
+        default=True,
+        help="Disable model quantization.",
+    )
     return parser.parse_args()
 
 
@@ -29,7 +36,9 @@ def main():
     encoder_path = os.path.join(outdir, "encoder.onnx")
     decoder_path = os.path.join(outdir, "decoder.onnx")
 
-    generate_onnx_graph(PARAMS.input, encoder_path, decoder_path, outdir, quant=PARAMS.no_quantize)
+    generate_onnx_graph(
+        PARAMS.input, encoder_path, decoder_path, outdir, quant=PARAMS.no_quantize
+    )
 
     try:
         verify_export(PARAMS.input, outdir)

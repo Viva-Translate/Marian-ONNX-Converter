@@ -7,8 +7,8 @@ from transformers import MarianMTModel, MarianTokenizer
 
 from onnxruntime import GraphOptimizationLevel, InferenceSession, SessionOptions
 
-from core.layers import MarianDecoder, MarianEncoder
-from core.quantize import quantize
+from marian_onnx.layers import MarianDecoder, MarianEncoder
+from marian_onnx.quantize import quantize
 
 
 def create_model_for_provider(path: str, provider: str):
@@ -51,10 +51,16 @@ def create_marian_encoder_decoder(model_path: str, outdir: str):
     marian_encoder = MarianEncoder(encoder).eval()
     marian_decoder = MarianDecoder(decoder).eval()
 
-    torch.save(model.model.shared.weight, os.path.join(outdir, 'lm_weight.bin'))
-    torch.save(model.final_logits_bias, os.path.join(outdir, 'lm_bias.bin'))
+    torch.save(model.model.shared.weight, os.path.join(outdir, "lm_weight.bin"))
+    torch.save(model.final_logits_bias, os.path.join(outdir, "lm_bias.bin"))
 
-    for file in ['config.json', 'source.spm', 'target.spm', 'tokenizer_config.json', 'vocab.json']:
+    for file in [
+        "config.json",
+        "source.spm",
+        "target.spm",
+        "tokenizer_config.json",
+        "vocab.json",
+    ]:
         shutil.copyfile(os.path.join(model_path, file), os.path.join(outdir, file))
 
     return marian_encoder, marian_decoder
@@ -82,7 +88,7 @@ def generate_onnx_graph(model_path, encoder_path, decoder_path, outdir, quant=Tr
             "input_ids": {0: "batch", 1: "sequence"},
             "attention_mask": {0: "batch", 1: "sequence"},
             "encoder_hidden_states": {0: "batch", 1: "sequence"},
-        }
+        },
     )
     if quant:
         quantize(encoder_path)
@@ -102,7 +108,7 @@ def generate_onnx_graph(model_path, encoder_path, decoder_path, outdir, quant=Tr
             "attention_mask": {0: "batch", 1: "sequence"},
             "encoder_hidden_states": {0: "batch", 1: "sequence"},
             "decoder_output": {0: "batch", 1: "sequence"},
-        }
+        },
     )
     if quant:
         quantize(decoder_path)

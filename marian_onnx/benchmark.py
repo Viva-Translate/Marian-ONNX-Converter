@@ -4,9 +4,10 @@ from timeit import timeit
 
 from transformers import MarianMTModel, MarianTokenizer
 
-from core.marian import MarianOnnx
+from marian_onnx.marian import MarianOnnx
 
 NUMBER = 100
+
 
 def verify_export(model_path, onnx_path):
     print("Verifying export...")
@@ -25,11 +26,11 @@ def verify_export(model_path, onnx_path):
 
 
 def gpu_benchmark(model_path, onnx_path):
-    model_ref = MarianMTModel.from_pretrained(model_path).to('cuda')
-    model = MarianOnnx(onnx_path, device='cuda')
+    model_ref = MarianMTModel.from_pretrained(model_path).to("cuda")
+    model = MarianOnnx(onnx_path, device="cuda")
 
     tokenizer = MarianTokenizer.from_pretrained(model_path)
-    input_ids = tokenizer(["Hello world !"], return_tensors="pt").to('cuda')
+    input_ids = tokenizer(["Hello world !"], return_tensors="pt").to("cuda")
 
     print("Warming up ORT...")
     for _ in range(100):
@@ -40,7 +41,9 @@ def gpu_benchmark(model_path, onnx_path):
     print(f"{timer // NUMBER} ms / sentence")
 
     print("PyTorch GPU: ", end="")
-    timer_ref = int(timeit(lambda: model_ref.generate(**input_ids), number=NUMBER) * 1000)
+    timer_ref = int(
+        timeit(lambda: model_ref.generate(**input_ids), number=NUMBER) * 1000
+    )
     print(f"{timer_ref // NUMBER} ms / sentence")
 
 
@@ -60,13 +63,15 @@ def cpu_benchmark(model_path, onnx_path):
     print(f"{timer // NUMBER} ms / sentence")
 
     print("PyTorch CPU: ", end="")
-    timer_ref = int(timeit(lambda: model_ref.generate(**input_ids), number=NUMBER) * 1000)
+    timer_ref = int(
+        timeit(lambda: model_ref.generate(**input_ids), number=NUMBER) * 1000
+    )
     print(f"{timer_ref // NUMBER} ms / sentence")
 
 
 if __name__ == "__main__":
-    ONNX_PATH = './outs/fr-en'
-    MODEL_PATH = './models/fr-en'
+    ONNX_PATH = "./outs/fr-en"
+    MODEL_PATH = "./models/fr-en"
 
     print("CPU Benchmark:\n")
     cpu_benchmark(MODEL_PATH, ONNX_PATH)

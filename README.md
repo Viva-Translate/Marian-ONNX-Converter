@@ -25,7 +25,7 @@
 ```py
 from transformers import MarianTokenizer
 
-from core.marian import MarianOnnx
+from marian_onnx.marian import MarianOnnx
 
 DEVICE = 'cpu'
 SENTENCES = ["Bonjour", "Je m'appelle Bob"]
@@ -44,7 +44,7 @@ print(tokenizer.batch_decode(tokens, skip_special_tokens=True))
 
 ```sh
 # Benchmark for the opus-mt-fr-en model on a NVIDIA GeForce RTX 2070
-$> python3 -m core.benchmark
+$> python3 -m marian_onnx.benchmark
 
 CPU Benchmark:
 
